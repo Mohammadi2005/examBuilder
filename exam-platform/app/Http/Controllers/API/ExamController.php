@@ -23,7 +23,7 @@ class ExamController extends Controller
 
     // create Exam
     public function store(StoreRequest $request){
-        try{
+        // try{
 
             DB::beginTransaction();
 
@@ -32,22 +32,25 @@ class ExamController extends Controller
             $user = auth()->user();
 
             $teacher = Teacher::where('user_id', $user->id)->first();
-            if($teacher->status != 3){
+            if($user->status != 3){
                 return ApiResponse::validationError('در حال حاضر شما دسترسی ثبت آزمون جدید ندارید.');
             }
 
-            $Exam->teacher_id = $teacher->teacher_id;
+            // dd($teacher->teacher_id);
+
+            
+            $Exam->teacher_id = $teacher->id;
             $Exam->title = $request->title;
             $Exam->description = $request->description ?? null;
             $Exam->time = $request->time;
             $Exam->status = 1;
             $Exam->start_at = $request->start_at;
             $Exam->end_at = $request->end_at;            
-            $Exam->show_result =  $user->show_result;
-            $Exam->random_questions =  $user->random_questions;
-            $Exam->random_options =  $user->random_options;
-            $Exam->allow_review =  $user->allow_review;
-            $Exam->max_attempts =  $user->max_attempts;
+            $Exam->show_result =  $request->show_result;
+            $Exam->random_questions =  $request->random_questions;
+            $Exam->random_options =  $request->random_options;
+            $Exam->allow_review =  $request->allow_review;
+            $Exam->max_attempts =  $request->max_attempts;
 
             $Exam->save();
 
@@ -55,20 +58,20 @@ class ExamController extends Controller
 
                 $Question = new Question();
                 
-                $Question->teacher_id = $teacher->teacher_id;
+                $Question->teacher_id = $teacher->id;
                 $Question->ques_type = $ques['ques_type'];
                 if ($ques['ques_type'] == 1) {
                     $Question->text = $ques['text'];
                     $Question->image = null;
                 } elseif ($ques['ques_type'] == 2) {
                     $Question->text = null;
-        
+
                     if (isset($ques['image']) && $ques['image'] instanceof \Illuminate\Http\UploadedFile) {
-                    
+
                         if ($Question->image && file_exists(public_path('images/Question/' . $Question->image))) {
                             unlink(public_path('images/Question/' . $Question->image));
                         }
-                        
+
                         $file = $ques['image'];
                         $extension = $file->getClientOriginalExtension();
                         $uniqName = rand(1000, 999999) . "_" . rand(10000, 99999) . '_EP.' . $extension;
@@ -99,13 +102,14 @@ class ExamController extends Controller
                 $Question->save();
                 
                 if ($Question->resp_type == 1) {
-                    foreach ($Question->options as $opti) {
+                    // dd($ques['options']);
+                    foreach ($ques['options'] as $opti) {
 
                         $option = new QuestionOption();
                         
                         $option->question_id = $Question->id;
-                        $option->value = $opti->value;
-                        $option->is_correct = $opti->is_correct;
+                        $option->value = $opti['value'];
+                        $option->is_correct = $opti['is_correct'];
                         
                         $option->save();
                     }
@@ -123,9 +127,9 @@ class ExamController extends Controller
             
             return ApiResponse::success();
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return ApiResponse::catch('store Exam error', $e->getMessage());
-        }
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     return ApiResponse::catch('store Exam error', $e->getMessage());
+        // }
     }
 }

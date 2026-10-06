@@ -17,6 +17,8 @@ class QuestionOption extends Model
         'question_id',
         'value',
         'is_correct',
+        'created_at',
+        'updated_at'
     ];
 
     public function question(){

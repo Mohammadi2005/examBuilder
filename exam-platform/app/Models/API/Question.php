@@ -21,6 +21,8 @@ class Question extends Model
         'status',
         'score',
         'resp_type',
+        'created_at',
+        'updated_at'
     ];
 
     
