@@ -25,17 +25,19 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|min:3',
+            'f_name' => 'required|string|max:255|min:2',
+            'l_name' => 'required|string|max:255|min:2',
             'mobile' => 'required|string|unique:users|regex:/^09[0-9]{9}$/',
-            'gender' => 'required|in:0,1,2',
+            'type' => 'required|in:1,2',
         ];
     }
 
     public function messages(): array {
         return [
-            'name.required' => 'نام الزامیست',
+            'f_name.required' => 'نام الزامیست',
+            'l_name.required' => 'نام خانوادگی الزامیست',
             'mobile.required' => 'شماره تماس الزامیست',
-            'gender.required'  => 'جنسیت الزامیست.'
+            'type.required'  => 'نوع کاربر الزامیست.'
         ];
     }
 

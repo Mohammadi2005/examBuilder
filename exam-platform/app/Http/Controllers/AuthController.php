@@ -6,6 +6,7 @@ use App\Http\Responses\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
+use App\Models\API\Teacher;
 use App\Models\User;
 use App\Models\Otp;
 use Carbon\Carbon;
@@ -42,8 +43,9 @@ class AuthController extends Controller
             ['mobile' => $request->mobile],
             [
                 'code' => $code,
-                'name' => $user->name,
-                'gender' => $user->gender,
+                'f_name' => $user->f_name,
+                'l_name' => $user->l_name,
+                'type' => $user->type,
                 'expires_at' => Carbon::now()->addMinutes(2),
                 'user_id' => $user->id,
                 'errors' => null
@@ -113,8 +115,9 @@ class AuthController extends Controller
             ['mobile' => $request->mobile],
             [
                 'code' => $code,
-                'name' => $request->name,
-                'gender' => $request->gender,
+                'f_name' => $request->f_name,
+                'l_name' => $request->l_name,
+                'type' => $request->type,
                 'expires_at' => Carbon::now()->addMinutes(2),
                 'errors'=> null
             ]
@@ -180,13 +183,12 @@ class AuthController extends Controller
         } else {
             $user = new User();
 
-            $user->name = $otp->name;
+            $user->f_name = $otp->f_name;
+            $user->l_name = $otp->l_name;
             $user->mobile  = $otp->mobile;
-            $user->gender = $otp->gender;
+            $user->type = $otp->type;
             $user->status = 1;
             $user->save();
-            
-            // $user->assignRole('user');
 
             $user->assignRole('user');
             $user->load('roles');
@@ -221,12 +223,29 @@ class AuthController extends Controller
                     'errors' => null
                 ], 402);
             }
+            $data = [
+                'user' => $user,
+            ];
+            if ($user->type == 2 and $user->status == 3) {
+                $teacher = Teacher::where('user_id', $user->id)->first();
+                $teacherData = [
+                    "id" => $teacher->id,
+                    "teacher_code" => $teacher->teacher_code,
+                    "national_code" => $teacher->national_code,
+                    "degree" => $teacher->degree,
+                    "field_study" => $teacher->field_study,
+                    "university" => $teacher->university,
+                    "bio" => $teacher->bio,
+                    "image" => asset('images/Teachers/' . $teacher->image),
+                    "status" => $teacher->status,
+                    "updated_at" => $teacher->updated_at
+                ];
+                $data['teacher'] = $teacherData;
+            }
 
             return response()->json([
-                'data' => [
-                    'user' => $user,
-                    // 'roles' => $roles
-                ],
+                'data' => $data,
+
                 
                 'statusCode' => 200,
                 'success' => true,
