@@ -98,7 +98,25 @@ class ExamController extends Controller
                 $Question->resp_type = $ques['resp_type'];
                 $Question->save();
                 
+                if ($Question->resp_type == 1) {
+                    foreach ($Question->options as $opti) {
 
+                        $option = new QuestionOption();
+                        
+                        $option->question_id = $Question->id;
+                        $option->value = $opti->value;
+                        $option->is_correct = $opti->is_correct;
+                        
+                        $option->save();
+                    }
+                }
+
+                $examQuestion = new ExamQuestion();
+                
+                $examQuestion->exam_id = $Exam->id;
+                $examQuestion->question_id = $Question->id;
+
+                $examQuestion->save();
             }
 
             DB::commit();
