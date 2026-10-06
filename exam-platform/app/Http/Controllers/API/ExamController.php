@@ -51,6 +51,55 @@ class ExamController extends Controller
 
             $Exam->save();
 
+            foreach ($request->Questions as $ques) {
+
+                $Question = new Question();
+                
+                $Question->teacher_id = $teacher->teacher_id;
+                $Question->ques_type = $ques['ques_type'];
+                if ($ques['ques_type'] == 1) {
+                    $Question->text = $ques['text'];
+                    $Question->image = null;
+                } elseif ($ques['ques_type'] == 2) {
+                    $Question->text = null;
+        
+                    if (isset($ques['image']) && $ques['image'] instanceof \Illuminate\Http\UploadedFile) {
+                    
+                        if ($Question->image && file_exists(public_path('images/Question/' . $Question->image))) {
+                            unlink(public_path('images/Question/' . $Question->image));
+                        }
+                        
+                        $file = $ques['image'];
+                        $extension = $file->getClientOriginalExtension();
+                        $uniqName = rand(1000, 999999) . "_" . rand(10000, 99999) . '_EP.' . $extension;
+                        $file->move(public_path('images/Question'), $uniqName);
+                        $Question->image = $uniqName;
+                    }
+
+                } elseif ($ques['ques_type'] == 3) {
+                    $Question->text = $ques['text'];
+                    
+                    if (isset($ques['image']) && $ques['image'] instanceof \Illuminate\Http\UploadedFile) {
+                    
+                        if ($Question->image && file_exists(public_path('images/Question/' . $Question->image))) {
+                            unlink(public_path('images/Question/' . $Question->image));
+                        }
+                        
+                        $file = $ques['image'];
+                        $extension = $file->getClientOriginalExtension();
+                        $uniqName = rand(1000, 999999) . "_" . rand(10000, 99999) . '_EP.' . $extension;
+                        $file->move(public_path('images/Question'), $uniqName);
+                        $Question->image = $uniqName;
+                    }
+                }
+
+                $Question->status = 1;
+                $Question->score = $ques['score'];
+                $Question->resp_type = $ques['resp_type'];
+                $Question->save();
+                
+
+            }
 
             DB::commit();
             
