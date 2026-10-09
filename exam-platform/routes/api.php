@@ -49,6 +49,10 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/indexPanel', [TeacherController::class, 'indexPanel']);
             Route::get('/showPanel', [TeacherController::class, 'showPanel'])->name('.showPanel');
         });
+
+        Route::prefix('/exam')->name('exam.')->group(function () {
+            Route::get('/index', [ExamController::class, 'index'])->name('.index');
+        });
     });
 
     Route::prefix('/teacher')->middleware(CheckRole::class.':teacher,admin')->group(function () {

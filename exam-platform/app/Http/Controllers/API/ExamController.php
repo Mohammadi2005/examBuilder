@@ -21,6 +21,58 @@ use Spatie\Permission\Commands\AssignRole;
 
 class ExamController extends Controller
 {
+    // list exam
+    public function index(Request $request)
+    {
+        try{
+            $query = Exam::query();
+
+            if ($request->filled('id')) {
+                $name = $request->input('id');
+                $query->where('id', 'LIKE', "%" . $name . "%");
+            }
+
+
+            if ($request->filled('title') && strlen($request->input('title')) >= 3) {
+                $title = $request->input('title');
+                $query->where('title', 'LIKE', "%" . $title . "%");
+            }
+
+            if ($request->filled('time')) {
+                $time = $request->input('time');
+                $query->where('time', 'LIKE', "%" . $time . "%");
+            }
+
+            if ($request->filled('show_result')) {
+                $show_result = $request->input('show_result');
+                $query->where('show_result', 'LIKE', "%" . $show_result . "%");
+            }          
+
+            if ($request->filled('status')) {
+                $status = $request->input('status');
+                $query->where('status', 'LIKE', "%" . $status . "%");
+            }          
+
+            if($request->filled('start_date') || $request->filled('end_date')){
+                if ($request->filled('start_date') && $request->filled('end_date')){
+                    $query->whereBetween('created_at', [
+                        $request->input('start_date'),
+                        $request->input('end_date')
+                    ]);
+                } elseif ($request->filled('start_date')) {
+                    $query->where('created_at', '>=', $request->input('start_date'));
+                } elseif ($request->filled('end_date')) {
+                    $query->where('created_at', '<=', $request->input('end_date'));
+                }
+            }
+
+
+            $users = $query->orderBy('id', 'desc')->paginate(20);
+            return new ExamCollection($users);
+        } catch (\Exception $e) {
+            return ApiResponse::catch('list users error', $e->getMessage());
+        }
+    }
 
     // create Exam
     public function store(StoreRequest $request)
@@ -132,4 +184,6 @@ class ExamController extends Controller
             return ApiResponse::catch('show Exam error',$e->getMessage());
         }
     }
+
+
 }

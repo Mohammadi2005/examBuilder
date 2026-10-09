@@ -37,6 +37,7 @@ class Teacher extends Model
         'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],        
     ];
 
+
     public function user(){
         return $this->belongsTo(User::class);
     }
