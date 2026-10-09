@@ -44,22 +44,22 @@ class Exam extends Model
         'allow_review' => ['required','integer'],
         'max_attempts' => ['required','integer'],
 
-        'Questions' => ['required', 'array', 'min:1'],
-        // 'Questions.*.id' => ['nullable','integer'],
-        'Questions.*.ques_type' => ['required','integer'],
-        'Questions.*.score' => ['required','numeric'],
-        'Questions.*.resp_type' => ['required','integer'],
-        'Questions.*.text' => ['nullable', 'required_if:ques_type,1,3','string'],
-        'Questions.*.image' => [
-            'nullable',
-            'required_if:hasBtn,2,3',
-            'image',
-            'mimes:jpeg,png,jpg,gif,svg,webp',
-            'max:5120'
-        ],
-        'Questions.*.options' =>  ['nullable', 'required_if:resp_type,1','array', 'min:2'],
-        'Questions.*.options.*.is_correct' =>  ['required','integer'],
-        'Questions.*.options.*.value' => ['required','string'],
+        // 'Questions' => ['required', 'array', 'min:1'],
+        // // 'Questions.*.id' => ['nullable','integer'],
+        // 'Questions.*.ques_type' => ['required','integer'],
+        // 'Questions.*.score' => ['required','numeric'],
+        // 'Questions.*.resp_type' => ['required','integer'],
+        // 'Questions.*.text' => ['nullable', 'required_if:ques_type,1,3','string'],
+        // 'Questions.*.image' => [
+        //     'nullable',
+        //     'required_if:hasBtn,2,3',
+        //     'image',
+        //     'mimes:jpeg,png,jpg,gif,svg,webp',
+        //     'max:5120'
+        // ],
+        // 'Questions.*.options' =>  ['nullable', 'required_if:resp_type,1','array', 'min:2'],
+        // 'Questions.*.options.*.is_correct' =>  ['required','integer'],
+        // 'Questions.*.options.*.value' => ['required','string'],
   
     ];
 

@@ -3,60 +3,51 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\API\Teacher;
+use App\Models\API\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
-use App\Http\Requests\Teacher\TeacherStoreRequest;
-use App\Http\Requests\Teacher\TeacherUpdateRequest;
-use App\Http\Resources\API\Teacher\ShowPanelResource;
-use App\Http\Resources\API\Teacher\TeacherCollection;
+use App\Http\Requests\Student\StoreRequest;
+use App\Http\Requests\Student\UpdateRequest;
+use App\Http\Resources\API\Student\ShowPanelResource;
+use App\Http\Resources\API\Student\StudentCollection;
 
 use Spatie\Permission\Commands\AssignRole;
 
-class TeacherController extends Controller
+class StudentController extends Controller
 {
 
-    // create Teacher
-    public function store(TeacherStoreRequest $request){
+    // create Student
+    public function store(StoreRequest $request){
         try{
 
-            $Teacher = new Teacher();
+            $Student = new Student();
 
             $user = auth()->user();
 
             if ($user->status == 3) {
-                return ApiResponse::validationError('کاربر گرامی اطلاعات شما قبلا به عنوان استاد در سیستم ذخیره شده است.');
+                return ApiResponse::validationError('کاربر گرامی اطلاعات شما قبلا به عنوان دانشجو در سیستم ذخیره شده است.');
             }
 
-            if ($user->status != 2 || $user->type == 2) {
-                return ApiResponse::validationError('شما مجاز به ثبت اطلاعات خود به عنوان یک استاد نیستید. .');
+            if ($user->status != 2 || $user->type != 1) {
+                return ApiResponse::validationError('شما مجاز به ثبت اطلاعات خود به عنوان یک دانشجو نیستید. .');
             }
 
-            $check = Teacher::where('user_id', $user->id)->first();
+            $check = Student::where('user_id', $user->id)->first();
             if($check){
                 return ApiResponse::validationError('کاربر با شماره تلفن وارد شده قبلا ثبت شده است.');
             }
 
+            $Student->national_code = $request->national_code;
+            $Student->student_code = $request->student_code;
+            $Student->field_study = $request->field_study;
+            $Student->education_level = $request->education_level;
+            $Student->university = $request->university;       
+            $Student->user_id =  $user->id;
 
-            $file = $request->file('image');
-            $extension = $file->getClientOriginalExtension();
-            $uniqName = rand(1000, 999999) . "_". rand(10000, 99999) . '_EP' . '.' . $extension;
-            $file->move(public_path('images/Teachers'), $uniqName);
+            $Student->save();
 
-            $Teacher->image = $uniqName;
-            $Teacher->national_code = $request->national_code;
-            $Teacher->teacher_code = $request->teacher_code;
-            $Teacher->degree = $request->degree;
-            $Teacher->field_study = $request->field_study;
-            $Teacher->university = $request->university;
-            $Teacher->bio = $request->bio;            
-            $Teacher->user_id =  $user->id;
-
-
-            $Teacher->save();
-
-            $user->assignRole('Teacher');
+            $user->assignRole('Student');
             $user->load('roles');
 
             $user->status = 3;
@@ -65,17 +56,17 @@ class TeacherController extends Controller
             return ApiResponse::success();
 
         } catch (\Exception $e) {
-            return ApiResponse::catch('store Teacher error', $e->getMessage());
+            return ApiResponse::catch('store Student error', $e->getMessage());
         }
     }
 
-    // update Teacher
-    public function update(TeacherUpdateRequest $request){
+    // update Student
+    public function update(UpdateRequest $request){
         try{
             
-            $Teacher = Teacher::find($request->id);
+            $Student = Student::find($request->id);
 
-            if(!$Teacher){
+            if(!$Student){
                 return ApiResponse::notFound(' تامین کننده');
             }
 
@@ -86,30 +77,13 @@ class TeacherController extends Controller
             //     return ApiResponse::notFound(' کاربر با نام و شماره تلفن وارد شده ');
             // }
 
-            if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                $file = $request->file('image');
-                if ($file->getError()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'خطا در آپلود فایل: ' . $file->getErrorMessage()
-                    ], 400);
-                }
-                
-                $extension = $file->getClientOriginalExtension();
-                $uniqName = rand(1000, 999999) . "_". rand(10000, 99999) . '_win24' . '.' . $extension;
-                
-                $file->move(public_path('images/Teachers'), $uniqName);
-                $Teacher->image = $uniqName;
-            }
-
-
 
             if($request->type == 1){
-                $Teacher->company_name = $request->company_name;
-                $Teacher->economic_code = $request->economic_code;
-                $Teacher->company_national_code = $request->company_national_code;
-                $Teacher->registration_number = $request->registration_number;
-                $Teacher->address = $request->address;
+                $Student->company_name = $request->company_name;
+                $Student->economic_code = $request->economic_code;
+                $Student->company_national_code = $request->company_national_code;
+                $Student->registration_number = $request->registration_number;
+                $Student->address = $request->address;
                 if ($request->hasFile('user_national_code_image') && $request->file('user_national_code_image')->isValid()) {
                     $file = $request->file('user_national_code_image');
                     if ($file->getError()) {
@@ -122,19 +96,19 @@ class TeacherController extends Controller
                     $extension = $file->getClientOriginalExtension();
                     $uniqName = rand(1000, 999999) . "_". rand(10000, 99999) . '_win24' . '.' . $extension;
                     
-                    $file->move(public_path('images/Teachers'), $uniqName);
-                    $Teacher->user_national_code_image = $uniqName;
+                    $file->move(public_path('images/Students'), $uniqName);
+                    $Student->user_national_code_image = $uniqName;
                 }
             } else {
-                $Teacher->company_name = null;
-                $Teacher->economic_code = null;
-                $Teacher->company_national_code = null;
-                $Teacher->registration_number = null;
-                $Teacher->address = null;
-                $Teacher->user_national_code_image = null;
+                $Student->company_name = null;
+                $Student->economic_code = null;
+                $Student->company_national_code = null;
+                $Student->registration_number = null;
+                $Student->address = null;
+                $Student->user_national_code_image = null;
             }
      
-            $user = User::find($Teacher->user_id);
+            $user = User::find($Student->user_id);
             // if($user->mobile != $request->mobile){
             //     $user->mobile = $request->mobile;
             // }
@@ -142,37 +116,37 @@ class TeacherController extends Controller
             $user->name = $request->user;
             $user->save();
 
-            $Teacher->national_code = $request->national_code;
-            $Teacher->mobile = $request->mobile;
-            $Teacher->type = $request->type;
+            $Student->national_code = $request->national_code;
+            $Student->mobile = $request->mobile;
+            $Student->type = $request->type;
 
-            $Teacher->save();
+            $Student->save();
 
             return ApiResponse::success();
 
         } catch (\Exception $e) {
-            return ApiResponse::catch('update Teacher error', $e->getMessage());
+            return ApiResponse::catch('update Student error', $e->getMessage());
         }
     }
 
     public function showPanel(Request $request)
     {
-        $Teacher = Teacher::where('id', $request->id)
+        $Student = Student::where('id', $request->id)
             ->where('soft_delete', 0)
             ->first();
 
-        if(!$Teacher){
+        if(!$Student){
             return ApiResponse::notFound(' تامین کننده');
         }
 
-        return ApiResponse::success(new ShowPanelResource($Teacher));
+        return ApiResponse::success(new ShowPanelResource($Student));
     }
 
 
     // indexPanel
     public function indexPanel(Request $request) {
         try{
-            $query = Teacher::where('soft_delete', 0);
+            $query = Student::where('soft_delete', 0);
 
 
             if ($request->filled('id')) {
@@ -283,9 +257,9 @@ class TeacherController extends Controller
             $query->orderBy('id','DESC');
 
 
-            $Teachers = $query->paginate(perPage: 20);
+            $Students = $query->paginate(perPage: 20);
                 
-            return new TeacherCollection($Teachers);
+            return new StudentCollection($Students);
                 
         } catch (\Exception $e) {
             return ApiResponse::catch('product list error', $e->getMessage());

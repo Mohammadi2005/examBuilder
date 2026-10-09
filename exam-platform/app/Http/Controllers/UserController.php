@@ -76,7 +76,10 @@ class UserController extends Controller
             if(!$user){
                 return ApiResponse::notFound(' کاربر');
             }
+            $user->status = 2;
             $user->syncRoles($request->role);            
+            $user->save();
+            
             return ApiResponse::success();
 
         } catch (\Exception $e) {

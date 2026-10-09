@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Exam;
+namespace App\Http\Requests\Student;
 
-use App\Models\API\Exam;
+use App\Models\API\Student;
 use App\RestFullApi\ApiFormRequest;
 
-class UpdateRequest extends ApiFormRequest
+class StoreRequest extends ApiFormRequest
 {
     public function authorize(): bool
     {
@@ -14,6 +14,6 @@ class UpdateRequest extends ApiFormRequest
 
     public function rules(): array
     {
-        return Exam::rules();
+        return Student::rules();
     }
 }

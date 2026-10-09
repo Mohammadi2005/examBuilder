@@ -27,13 +27,22 @@ class Question extends Model
 
     
     public static $rules = [
-        'text' => ['required','string','min:3','max:150'],
-        'teacher_id' =>  ['required','integer','exists:teachers'],
-        'ques_type' => ['required','integer'],
-        'image' => ['required','image','mimes:jpeg,png,jpg,gif,svg,webp','max:5120'],
-        'status' => ['required','integer'],
-        'score' => ['required','numeric'],
-        'resp_type' => ['required','integer'],
+        'Questions' => ['required', 'array', 'min:1'],
+        // 'Questions.*.id' => ['nullable','integer'],
+        'Questions.*.ques_type' => ['required','integer'],
+        'Questions.*.score' => ['required','numeric'],
+        'Questions.*.resp_type' => ['required','integer'],
+        'Questions.*.text' => ['nullable', 'required_if:ques_type,1,3','string'],
+        'Questions.*.image' => [
+            'nullable',
+            'required_if:hasBtn,2,3',
+            'image',
+            'mimes:jpeg,png,jpg,gif,svg,webp',
+            'max:5120'
+        ],
+        'Questions.*.options' =>  ['nullable', 'required_if:resp_type,1','array', 'min:2'],
+        'Questions.*.options.*.is_correct' =>  ['required','integer'],
+        'Questions.*.options.*.value' => ['required','string'],
     ];
 
     public function teacher(){

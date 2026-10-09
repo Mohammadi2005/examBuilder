@@ -1,11 +1,15 @@
 <?php
 
-use App\Http\Controllers\API\ExamController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\CheckRole;
+
+// controllers
+use App\Http\Controllers\API\ExamController;
+use App\Http\Controllers\API\QuestionController;
+use App\Http\Controllers\API\StudentController;
 use App\Http\Controllers\API\TeacherController;
 
 
@@ -54,9 +58,23 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/update', [TeacherController::class, 'update'])->name('.update');
         });
 
-        Route::prefix('/exam')->name('.')->group(function () {
+        Route::prefix('/exam')->name('exam.')->group(function () {
             Route::post('/store', [ExamController::class, 'store'])->name('.store');
+            Route::post('/update', [ExamController::class, 'update'])->name('.update');
+            Route::get('/show', [ExamController::class, 'show'])->name('.show');
+        });
+
+        Route::prefix('/question')->name('question.')->group(function () {
+            Route::post('/store', [QuestionController::class, 'store'])->name('.store');
             // Route::post('/update', [TeacherController::class, 'update'])->name('.update');
+        });
+    });
+
+    Route::prefix('/student')->middleware(CheckRole::class.':student,admin')->group(function () {
+
+        Route::prefix('/')->name('.')->group(function () {
+            Route::post('/store', [StudentController::class, 'store'])->name('.store');
+            Route::post('/update', [StudentController::class, 'update'])->name('.update');
         });
     });
 });
