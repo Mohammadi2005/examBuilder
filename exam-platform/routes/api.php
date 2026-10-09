@@ -52,6 +52,7 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/exam')->name('exam.')->group(function () {
             Route::get('/index', [ExamController::class, 'index'])->name('.index');
+            Route::post('change', [ExamController::class, 'changeStatus']);
         });
     });
 

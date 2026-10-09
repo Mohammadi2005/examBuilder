@@ -75,8 +75,7 @@ class ExamController extends Controller
     }
 
     // create Exam
-    public function store(StoreRequest $request)
-    {
+    public function store(StoreRequest $request){
         try {
 
             DB::beginTransaction();
@@ -123,8 +122,7 @@ class ExamController extends Controller
     }
 
     // update Exam
-    public function update(UpdateRequest $request)
-    {
+    public function update(UpdateRequest $request){
         try {
 
             DB::beginTransaction();
@@ -174,7 +172,7 @@ class ExamController extends Controller
         }
     }
 
-    
+    // show Exam
     public function show(Request $request) {
         try {
             $exam = Exam::where('id',$request->id)->where('soft_delete',0)->first();
@@ -185,5 +183,21 @@ class ExamController extends Controller
         }
     }
 
+    public function changeStatus(Request $request){
+        try{
 
+            $exam = Exam::find($request->id);
+            if(!$exam){
+                return ApiResponse::notFound('آزمون');
+            }
+
+            $exam->status = $request->status;
+            $exam->save();
+
+            return ApiResponse::success();
+
+        } catch (\Exception $e) {
+            return ApiResponse::catch('change status error', $e->getMessage());
+        }
+    }
 }
